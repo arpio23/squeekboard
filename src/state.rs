@@ -381,7 +381,7 @@ Outcome:
                     .as_scaled_ceiling();
 
                 let (arrangement, height_as_widths) = {
-                    if abstract_width < 540 {(
+                    if abstract_width <= 540 {(
                         ArrangementKind::Base,
                         Rational {
                             numerator: 210,

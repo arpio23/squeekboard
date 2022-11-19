@@ -1,7 +1,7 @@
 ---
 margins: { top: 4, side: 0, bottom: 4 }
 outlines:
-    default: { width: 120, height: 52 }
+    default: { width: 120, height: 40 }
 
 views:
     base:
