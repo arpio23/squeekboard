@@ -1,40 +1,40 @@
 ---
 outlines:
-    default: { width: 35.33, height: 36 }
-    action:  { width: 59,    height: 36 }
-    altline: { width: 52.67, height: 36 }
-    wide: { width: 59, height: 36 }
-    spaceline: { width: 140, height: 36 }
-    special: { width: 44, height: 36 }
+    default: { width: 42, height: 40 }
+    action:  { width: 59,    height: 40 }
+    altline: { width: 52.67, height: 40 }
+    wide: { width: 59, height: 40 }
+    spaceline: { width: 200, height: 40 }
+    special: { width: 44, height: 40 }
     small: { width: 59, height: 22 }
 
 views:
     base:
-        - "Ctrl Alt ↑ ↓ ← →"
+        - "Ctrl TabSmall Alt ↑ ↓ ← →"
         - "q w e r t y u i o p"
         - "a s d f g h j k l"
         - "Shift_L   z x c v b n m  BackSpace"
         - "show_numbers preferences      space        show_actions Return"
     upper:
-        - "Ctrl Alt PgUp PgDn Home End"
+        - "Ctrl TabSmall Alt PgUp PgDn Home End"
         - "Q W E R T Y U I O P"
         - "A S D F G H J K L"
         - "Shift_L   Z X C V B N M  BackSpace"
         - "show_numbers preferences      space        show_actions Return"
     numbers:
-        - "Ctrl Alt ↑ ↓ ← →"
+        - "Ctrl TabSmall Alt ↑ ↓ ← →"
         - "1 2 3 4 5 6 7 8 9 0"
         - "* # $ / & - _ + ( )"
         - "show_symbols   , \" ' colon ; ! ?  BackSpace"
         - "show_letters preferences         space        period Return"
     symbols:
-        - "Ctrl Alt ↑ ↓ ← →"
+        - "Ctrl TabSmall Alt ↑ ↓ ← →"
         - "~ ` | · √ π τ ÷ × ¶"
         - "© ® £ € ¥ ^ ° @ { }"
         - "show_numbers_from_symbols   \\ % < > = [ ]  BackSpace"
         - "show_letters preferences         space        period Return"
     actions:
-        - "Ctrl Alt PgUp PgDn Home End"
+        - "Ctrl TabSmall Alt PgUp PgDn Home End"
         - "F1  F2  F3  F4  F5  F6"
         - "F7  F8  F9  F10 F11 F12"
         - "Esc Tab Pause Insert Up Del"
@@ -135,6 +135,10 @@ buttons:
     Tab:
         outline: "action"
         keysym: "Tab"
+    TabSmall:
+        outline: "small"
+        keysym: "Tab"
+        label: "Tab"
     Del:
         outline: "action"
         keysym: "Delete"
