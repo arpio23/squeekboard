@@ -31,6 +31,9 @@ jobs:
         with:
           image: tonistiigi/binfmt:latest
           platforms: arm64
+          
+      - name: Create out directory
+        run: mkdir out
 
       - name: Pull container
         run: docker pull quay.io/droidian/build-essential:bookworm-arm64
@@ -44,12 +47,8 @@ jobs:
                                                     apt update && 
                                                     mk-build-deps --install --tool='apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes' debian/control && 
                                                     rm -f squeekboard-build-deps_*.* && 
-                                                    dpkg-buildpackage -us -uc -b"
-          
-      - name: Copy packages to out directory
-        run: |
-          mkdir out
-          cp ../*.deb out/
+                                                    dpkg-buildpackage -us -uc -b && 
+                                                    cp ../*.deb out/"
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
