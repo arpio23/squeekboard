@@ -1,3 +1,12 @@
+squeekboard (1.20.0-2) experimental; urgency=medium
+
+  * Merge upstream/master commit: f4c03ce6e84f2d21814266dd2aa269af1fa71f54
+  * Update terminal layout, add Tab button
+  * Update US, DE layout sizes for the workaround
+  * Workaround: Select portrait mode on devices with the width of 1080.
+
+ -- arpio23 <alex@familyrutz.com>  Thu, 1 Dec 2022 06:14:51 -0700
+
 squeekboard (1.20.0-1) experimental; urgency=medium
 
   [ Dorota Czaplejewicz ]
