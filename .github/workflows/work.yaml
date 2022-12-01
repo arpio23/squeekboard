@@ -46,21 +46,21 @@ jobs:
                                                     rm -f squeekboard-build-deps_*.* && 
                                                     dpkg-buildpackage -us -uc -b"
           
-      - name: Move packages to out directory
+      - name: Copy packages to out directory
         run: |
-          mkdir /out
-          cp ../*.deb /out/
+          mkdir out
+          cp ../*.deb out/
           
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: squeekboard
-          path: /out/*.deb
+          path: out/*.deb
           if-no-files-found: error
           retention-days: 1
 
   prepare:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Create GitHub release
     needs: build
 
@@ -80,7 +80,7 @@ jobs:
           tag: latest
 
   publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: prepare
 
     name: Publish squeekboard
