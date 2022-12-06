@@ -1,3 +1,11 @@
+squeekboard (1.20.0-3) experimental; urgency=medium
+
+  * Workaround:
+  * Change keyboard height
+  * Update layouts
+
+ -- arpio23 <alex@familyrutz.com>  Thu, 6 Dec 2022 12:55:35 -0700
+
 squeekboard (1.20.0-2) experimental; urgency=medium
 
   * Merge upstream/master commit: f4c03ce6e84f2d21814266dd2aa269af1fa71f54
