@@ -208,7 +208,7 @@ fn translate_layout_names(layouts: &Vec<LayoutId>) -> Vec<OwnedTranslation> {
     }
 
     // Attempt to take all xkb names from gnome-desktop's xkb info.
-    let xkb_translator = ::locale::XkbInfo::new();
+    let xkb_translator = crate::locale::XkbInfo::new();
 
     let translated_names = layouts.iter()
         .map(|id| match id {
@@ -364,6 +364,7 @@ pub fn show(
     };
 
     let settings_action = gio::SimpleAction::new("settings", None);
+    settings_action.set_enabled(popover.settings_active);
     settings_action.connect_activate(move |_, _| {
         let s = CString::new("region").unwrap();
         unsafe { c::popover_open_settings_panel(s.as_ptr()) };

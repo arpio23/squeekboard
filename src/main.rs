@@ -4,10 +4,12 @@
 
 /*! Glue for the main loop. */
 use crate::actors;
+use crate::actors::external::debug;
 use crate::animation;
-use crate::debug;
 use crate::data::loading;
+use crate::event_loop;
 use crate::panel;
+use crate::state;
 use glib::{Continue, MainContext, PRIORITY_DEFAULT, Receiver};
 
 
@@ -19,6 +21,8 @@ mod c {
     use std::rc::Rc;
     use std::time::Instant;
 
+    use crate::actors::Destination;
+    use crate::actors::popover;
     use crate::event_loop::driver;
     use crate::imservice::IMService;
     use crate::imservice::c::InputMethod;
@@ -26,7 +30,7 @@ mod c {
     use crate::outputs::Outputs;
     use crate::state;
     use crate::submission::Submission;
-    use crate::util::c::Wrapped;
+    use crate::util::c::{ArcWrapped, Wrapped};
     use crate::vkeyboard::c::ZwpVirtualKeyboardV1;
     
     /// DbusHandler*
@@ -46,7 +50,7 @@ mod c {
         /// The handle to which Commands should be sent
         /// for processing in the main loop.
         receiver: Wrapped<Receiver<Commands>>,
-        state_manager: Wrapped<driver::Threaded>,
+        state_manager: Wrapped<EventLoop>,
         submission: Wrapped<Submission>,
         /// Not wrapped, because C needs to access this.
         wayland: *mut Wayland,
@@ -89,6 +93,8 @@ mod c {
         // given that dbus handler is using glib.
         fn dbus_handler_set_visible(dbus: *const DBusHandler, visible: u8);
     }
+    
+    // INITIALIZATION
 
     /// Creates what's possible in Rust to eliminate as many FFI calls as possible,
     /// because types aren't getting checked across their boundaries,
@@ -117,12 +123,17 @@ mod c {
         };
         let submission = Submission::new(vk, imservice);
         
+        let popover = ArcWrapped::new(actors::popover::State::new(true));
+
+        #[cfg(feature = "zbus_v1_5")]
+        crate::actors::external::screensaver::init(popover.clone_ref());
+        
         RsObjects {
             submission: Wrapped::new(submission),
             state_manager: Wrapped::new(state_manager),
             receiver: Wrapped::new(receiver),
             wayland: Box::into_raw(wayland),
-            popover: Wrapped::new(actors::popover::State::new()),
+             popover,
         }
     }
 
@@ -148,7 +159,7 @@ mod c {
                 main_loop_handle_message(
                     msg,
                     panel_manager.clone(),
-                    &popover,
+                    &popover.clone_ref(),
                     hint_manager,
                     dbus_handler,
                 );
@@ -166,7 +177,7 @@ mod c {
     fn main_loop_handle_message(
         msg: Commands,
         panel_manager: Wrapped<panel::Manager>,
-        popover: &actors::popover::c::Actor,
+        popover: &actors::popover::Destination,
         hint_manager: HintManager,
         dbus_handler: *const DBusHandler,
     ) {
@@ -187,7 +198,7 @@ mod c {
                 overlay_name,
                 purpose,
             } = description;
-            actors::popover::set_overlay(popover, overlay_name.clone());
+            popover.send(popover::Event::Overlay(overlay_name.clone()));
             let layout = loading::load_layout(&name, kind, purpose, &overlay_name);
             let layout = Box::into_raw(Box::new(layout));
             // CSS can't express "+" in the class
@@ -202,7 +213,75 @@ mod c {
             }
         }
     }
+    
+    // EVENT PASSING    
+
+    use crate::logging;
+    use crate::state::{Event, Presence};
+    use crate::state::LayoutChoice;
+    use crate::state::visibility;
+    use crate::util;
+    
+    use crate::logging::Warn;
+    
+    #[no_mangle]
+    pub extern "C"
+    fn squeek_state_send_force_visible(mgr: Wrapped<EventLoop>) {
+        let sender = mgr.clone_ref();
+        let sender = sender.borrow();
+        sender.send(Event::Visibility(visibility::Event::ForceVisible))
+            .or_warn(&mut logging::Print, logging::Problem::Warning, "Can't send to state manager");
+    }
+    
+    #[no_mangle]
+    pub extern "C"
+    fn squeek_state_send_force_hidden(sender: Wrapped<EventLoop>) {
+        let sender = sender.clone_ref();
+        let sender = sender.borrow();
+        sender.send(Event::Visibility(visibility::Event::ForceHidden))
+            .or_warn(&mut logging::Print, logging::Problem::Warning, "Can't send to state manager");
+    }
+
+    #[no_mangle]
+    pub extern "C"
+    fn squeek_state_send_keyboard_present(sender: Wrapped<EventLoop>, present: u32) {
+        let sender = sender.clone_ref();
+        let sender = sender.borrow();
+        let state =
+            if present == 0 { Presence::Missing }
+            else { Presence::Present };
+        sender.send(Event::PhysicalKeyboard(state))
+            .or_warn(&mut logging::Print, logging::Problem::Warning, "Can't send to state manager");
+    }
+    
+    #[no_mangle]
+    pub extern "C"
+    fn squeek_state_send_layout_set(
+        sender: Wrapped<EventLoop>,
+        name: *const c_char,
+        source: *const c_char,
+        // TODO: use when synthetic events are needed
+        _timestamp: u32,
+    ) {
+        let sender = sender.clone_ref();
+        let sender = sender.borrow();
+        let string_or_empty = |v| String::from(
+            util::c::as_str(v)
+            .unwrap_or(Some(""))
+            .unwrap_or("")
+        );
+        sender
+            .send(Event::LayoutChoice(LayoutChoice {
+                name: string_or_empty(&name),
+                source: string_or_empty(&source).into(),
+            }))
+            .or_warn(&mut logging::Print, logging::Problem::Warning, "Can't send to state manager");
+    }
 }
+
+
+pub type EventLoop = event_loop::driver::Threaded<state::Application>;
+
 
 pub mod commands {
     use crate::animation;

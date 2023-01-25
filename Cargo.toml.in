@@ -1,6 +1,7 @@
 [package]
 name = "rs"
 version = "0.1.0"
+edition = "2021"
 
 [lib]
 name = "rs"
@@ -22,6 +23,7 @@ path = "@path@/examples/find_orphan_layouts.rs"
 
 [features]
 glib_v0_14 = []
+zbus_v1_5 = []
 
 # Dependencies which don't change based on build flags
 [dependencies]

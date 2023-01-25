@@ -75,7 +75,7 @@ struct keymap squeek_key_map_from_str(const char *keymap_str) {
     if ((void*)ptr == (void*)-1) {
         g_error("Failed to set up mmap");
     }
-    strncpy(ptr, xkb_keymap_str, keymap_len);
+    strlcpy(ptr, xkb_keymap_str, keymap_len);
     munmap(ptr, keymap_len);
     free(xkb_keymap_str);
     xkb_keymap_unref(keymap);
@@ -86,15 +86,15 @@ struct keymap squeek_key_map_from_str(const char *keymap_str) {
     return km;
 }
 
-void level_keyboard_free(LevelKeyboard *self) {
+void layout_free(Layout *self) {
     squeek_layout_free(self->layout);
     g_free(self);
 }
 
-LevelKeyboard*
-level_keyboard_new (char *style_name, struct squeek_layout *layout)
+Layout*
+layout_new (char *style_name, struct squeek_layout *layout)
 {
-    LevelKeyboard *keyboard = g_new0(LevelKeyboard, 1);
+    Layout *keyboard = g_new0(Layout, 1);
     if (!keyboard) {
         g_error("Failed to create a keyboard");
     }

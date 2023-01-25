@@ -3,19 +3,20 @@
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
+use crate::main;
+use crate::state;
+
 use std::thread;
 use zbus::{Connection, ObjectServer, dbus_interface, fdo};
 
-use crate::event_loop;
-use crate::state;
-
+use super::Void;
 
 use std::convert::TryInto;
 
 
 /// Accepts commands controlling the debug mode
 struct Manager {
-    sender: event_loop::driver::Threaded,
+    sender: main::EventLoop,
     enabled: bool,
 }
 
@@ -37,7 +38,7 @@ impl Manager {
     }
 }
 
-fn start(mgr: Manager) -> Result<(), Box<dyn std::error::Error>> {
+fn start(mgr: Manager) -> Result<Void, Box<dyn std::error::Error>> {
     let connection = Connection::new_session()?;
     fdo::DBusProxy::new(&connection)?.request_name(
         "sm.puri.SqueekDebug",
@@ -54,7 +55,7 @@ fn start(mgr: Manager) -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-pub fn init(sender: event_loop::driver::Threaded) {
+pub fn init(sender: main::EventLoop) {
     let mgr = Manager {
         sender,
         enabled: false,
