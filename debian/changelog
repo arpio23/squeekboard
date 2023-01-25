@@ -1,3 +1,9 @@
+squeekboard (1.20.0-4) experimental; urgency=medium
+
+  * Merge remote-tracking branch 'upstream/master' into testing d18f09823be9703b9d062f18dffeae6e811f86e0
+
+ -- arpio23 <alex@familyrutz.com>
+
 squeekboard (1.20.0-3) experimental; urgency=medium
 
   * Workaround:
