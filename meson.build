@@ -1,7 +1,7 @@
 project(
     'squeekboard',
     'c', 'rust',
-    version: '1.20.0',
+    version: '1.21.0',
     license: 'GPLv3',
     meson_version: '>=0.51.0',
     default_options: [
@@ -99,7 +99,7 @@ cargo_toml_base = configure_file(
 cargo_patch = []
 
 if get_option('newer') == true
-    cargo_build_flags += ['--features', 'glib_v0_14,zbus_v1_5']
+    cargo_build_flags += ['--features', 'glib_v0_14,zbus_v1_5,clap_v4']
     cargo_deps = files('Cargo.deps.newer')
     cargo_lock = files('Cargo.lock.newer')
 else
